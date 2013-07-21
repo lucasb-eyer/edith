@@ -14,7 +14,6 @@
 #include "property.h"
 #include "visitor.h"
 
-uint32_t tick = 0;
 
 std::vector<std::string> player_names;
 std::map<uint32_t, uint32_t> selected_hero_id;
@@ -61,7 +60,7 @@ void update_name_map(const Entity &player_resource) {
 // We first check if it's in our name map, and if it isn't then it must be an illusion
 // or something. After that we make sure the hero has 0 health and if it does we output
 // it.
-void update_hero(const Entity &hero) {
+void update_hero(uint32_t tick, const Entity &hero) {
   using std::dynamic_pointer_cast;
   using std::shared_ptr;
   using std::cout;
@@ -116,11 +115,11 @@ void update_hero(const Entity &hero) {
   cout << cell_z_prop->value << endl;
 }
 
-void handle_entity(const Entity &entity) {
+void handle_entity(uint32_t tick, const Entity &entity) {
   if (entity.clazz->name == "CDOTA_PlayerResource") {
     update_name_map(entity);
   } else if (entity.clazz->name.find("CDOTA_Unit_Hero_") == 0) {
-    update_hero(entity);
+    update_hero(tick, entity);
   }
 }
 
@@ -135,15 +134,18 @@ public:
   }
 
   virtual void visit_entity_created(const Entity &entity) {
-    handle_entity(entity);
+    handle_entity(tick, entity);
   }
 
   virtual void visit_entity_updated(const Entity &entity) {
-    handle_entity(entity);
+    handle_entity(tick, entity);
   }
 
   virtual void visit_entity_deleted(const Entity &entity) {
   }
+
+private:
+  uint32_t tick;
 };
 
 #endif
