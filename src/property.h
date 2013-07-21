@@ -20,6 +20,8 @@ public:
   SP_Types type;
 };
 
+std::ostream& operator<<(std::ostream& os, const Property& prop);
+
 template<SP_Types SendPropType, typename T>
 class TypedProperty : public Property {
 public:
@@ -39,6 +41,14 @@ public:
   }
 
   T values[C];
+
+  std::ostream& print(std::ostream& os) const {
+      os << "[";
+      for(int i = 0 ; i < C ; ++i) {
+          os << values[i] << (i < C-1 ? ", " : "");
+      }
+      return os << "]";
+  }
 };
 
 typedef std::shared_ptr<Property> ArrayPropertyElement;
@@ -56,6 +66,14 @@ public:
 
   std::vector<ArrayPropertyElement> elements;
   SP_Types value_type;
+
+  std::ostream& print(std::ostream& os) const {
+      os << "[";
+      for(auto iElem = elements.begin() ; iElem != elements.end() ; ++iElem) {
+          os << **iElem << (iElem + 1 == elements.end() ? ", " : "");
+      }
+      return os << "]";
+  }
 };
 
 typedef TypedProperty<SP_Int, uint32_t> IntProperty;

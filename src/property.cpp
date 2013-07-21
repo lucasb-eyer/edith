@@ -308,3 +308,25 @@ Property::Property(const std::string &_name, SP_Types _type) : name(_name), type
 Property::~Property() {
 }
 
+std::ostream& operator<<(std::ostream& os, const Property& prop)
+{
+    switch(prop.type) {
+    case SP_Int:
+        return os << dynamic_cast<const IntProperty&>(prop).value;
+    case SP_Int64:
+        return os << dynamic_cast<const Int64Property&>(prop).value;
+    case SP_Float:
+        return os << dynamic_cast<const FloatProperty&>(prop).value;
+    case SP_String:
+        return os << dynamic_cast<const StringProperty&>(prop).value;
+    case SP_Vector:
+        return dynamic_cast<const VectorProperty&>(prop).print(os);
+    case SP_VectorXY:
+        return dynamic_cast<const VectorXYProperty&>(prop).print(os);
+    case SP_Array:
+        return dynamic_cast<const ArrayProperty&>(prop).print(os);
+    default:
+        return os << "[unknown type " << prop.type << "]";
+    }
+}
+
