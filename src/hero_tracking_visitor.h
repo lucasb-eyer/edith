@@ -25,25 +25,25 @@ public:
         _tick = t;
     }
 
-    virtual void visit_entity_created(const Entity &entity) {
-        _hph.visit_entity_created(entity);
-        handle_entity(entity);
+    virtual bool visit_entity_created(const Entity &entity) {
+        // Shouldn't do it this way, it's just too clever:
+        // _hph... returns true if it used the entity, in which case it is not a hero -> short-circuit.
+        return _hph.visit_entity_created(entity) || handle_entity(entity);
     }
 
-    virtual void visit_entity_updated(const Entity &entity) {
-        _hph.visit_entity_updated(entity);
-        handle_entity(entity);
+    virtual bool visit_entity_updated(const Entity &entity) {
+        return _hph.visit_entity_updated(entity) || handle_entity(entity);
     }
 
 protected:
-    void handle_entity(const Entity &hero) {
+    bool handle_entity(const Entity &hero) {
         if(hero.clazz->name.find("CDOTA_Unit_Hero_") != 0)
-            return;
+            return false;
 
         // Most likely an illusion.
         std::string player = _hph.player_name_for_hero_id(hero.id);
         if(player.empty())
-            return;
+            return false;
 
         try {
             int cell_x = hero.properties.at("DT_DOTA_BaseNPC.m_cellX")->value_as<IntProperty>();
@@ -65,6 +65,7 @@ protected:
         } catch(const std::bad_cast& e) {
             XASSERT(false, "%s", e.what());
         }
+        return true;
     }
 
 private:

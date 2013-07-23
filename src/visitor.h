@@ -9,9 +9,9 @@ public:
 
   virtual void visit_tick(uint32_t tick) { }
 
-  virtual void visit_entity_created(const Entity &entity) { }
-  virtual void visit_entity_updated(const Entity &entity) { }
-  virtual void visit_entity_deleted(const Entity &entity) { }
+  virtual bool visit_entity_created(const Entity &entity) { }
+  virtual bool visit_entity_updated(const Entity &entity) { }
+  virtual bool visit_entity_deleted(const Entity &entity) { }
 };
 
 #endif

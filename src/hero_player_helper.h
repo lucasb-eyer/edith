@@ -13,12 +13,12 @@
 // the mapping heroid -> playername.
 class HeroPlayerHelper : public Visitor {
 public:
-    virtual void visit_entity_created(const Entity &entity) {
-        update_name_map(entity);
+    virtual bool visit_entity_created(const Entity &entity) {
+        return update_name_map(entity);
     }
 
-    virtual void visit_entity_updated(const Entity &entity) {
-        update_name_map(entity);
+    virtual bool visit_entity_updated(const Entity &entity) {
+        return update_name_map(entity);
     }
 
     bool is_hero(uint32_t entityid) const {
@@ -38,9 +38,9 @@ protected:
     // that contain the names of the (up to) 24 people connected and we want the 24
     // send props from m_hSelectedHero that contain the entity ID of the heroes they
     // selected.
-    void update_name_map(const Entity &player_resource) {
+    bool update_name_map(const Entity &player_resource) {
         if(player_resource.clazz->name != "CDOTA_PlayerResource") {
-            return;
+            return false;
         }
 
         // TODO: go up to 23 (inclusive) if interested in others, like casters.
@@ -57,6 +57,7 @@ protected:
         _hero_to_playername[player_resource.properties.at("m_hSelectedHero.0009")->value_as<IntProperty>() & 0x7FF] = player_resource.properties.at("m_iszPlayerNames.0009")->value_as<StringProperty>();
 
         // XASSERT(_hero_to_playername.size() == 24, "Player names not complete");
+        return true;
     }
 
 private:

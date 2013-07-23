@@ -25,14 +25,14 @@ public:
     _tick = t;
   }
 
-  virtual void visit_entity_created(const Entity &entity) {
-    _hph.visit_entity_created(entity);
-    update_hero(entity);
+  virtual bool visit_entity_created(const Entity &entity) {
+    // Shouldn't do it this way, it's just too clever:
+    // _hph... returns true if it used the entity, in which case it is not a hero -> short-circuit.
+    return _hph.visit_entity_created(entity) || update_hero(entity);
   }
 
-  virtual void visit_entity_updated(const Entity &entity) {
-    _hph.visit_entity_updated(entity);
-    update_hero(entity);
+  virtual bool visit_entity_updated(const Entity &entity) {
+    return _hph.visit_entity_updated(entity) || update_hero(entity);
   }
 
 protected:
@@ -40,25 +40,25 @@ protected:
   // We first check if it's in our name map, and if it isn't then it must be an illusion
   // or something. After that we make sure the hero has 0 health and if it does we output
   // it.
-  void update_hero(const Entity &hero) {
+  bool update_hero(const Entity &hero) {
     using std::dynamic_pointer_cast;
     using std::shared_ptr;
     using std::cout;
     using std::endl;
 
     if (hero.clazz->name.find("CDOTA_Unit_Hero_") != 0)
-      return;
+      return false;
 
     std::string playername = _hph.player_name_for_hero_id(hero.id);
     if (playername.empty()) {
       // An illusion.
-      return;
+      return false;
     }
 
     try {
       int life = hero.properties.at("DT_DOTA_BaseNPC.m_iHealth")->value_as<IntProperty>();
       if (life > 0) {
-        return;
+        return true;
       }
 
       int cell_x = hero.properties.at("DT_DOTA_BaseNPC.m_cellX")->value_as<IntProperty>();
@@ -79,6 +79,8 @@ protected:
     } catch(const std::bad_cast& e) {
       XASSERT(false, "%s", e.what());
     }
+
+    return true;
   }
 
 private:
