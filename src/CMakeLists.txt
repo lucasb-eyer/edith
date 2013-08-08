@@ -22,6 +22,7 @@ set(PROTOBUF_IMPORT_DIRS ${PROTOBUF_INCLUDE_DIRS})
 PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${edith_PROTOS})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+include_directories(${PROJECT_SOURCE_DIR})
 file(GLOB edith_SOURCES *.cpp)
 
 add_executable(edith ${edith_SOURCES} ${PROTO_SRCS} ${PROTO_HDRS})

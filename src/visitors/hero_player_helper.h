@@ -13,6 +13,19 @@
 // the mapping heroid -> playername.
 class HeroPlayerHelper : public Visitor {
 public:
+    HeroPlayerHelper(bool output_mapping = false) : _output_mapping(output_mapping)
+    { }
+
+    virtual ~HeroPlayerHelper() {
+        if(_output_mapping) {
+            std::cout << "{" << std::endl;
+            for(auto& kv : _hero_to_playername) {
+                std::cout << "  " << kv.first << ": \"" << kv.second << "\"," << std::endl;
+            }
+            std::cout << "}" << std::endl;
+        }
+    }
+
     virtual bool visit_entity_created(const Entity &entity) {
         return update_name_map(entity);
     }
@@ -62,6 +75,7 @@ protected:
 
 private:
     std::map<uint32_t, std::string> _hero_to_playername;
+    bool _output_mapping;
 };
 
 #endif

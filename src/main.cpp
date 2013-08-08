@@ -9,7 +9,7 @@
 #include "demo.h"
 #include "entity.h"
 #include "state.h"
-#include "death_recording_visitor.h"
+#include "visitors/death_recording.h"
 
 #define INSTANCE_BASELINE_TABLE "instancebaseline"
 #define KEY_HISTORY_SIZE 32
