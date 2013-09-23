@@ -42,7 +42,6 @@ protected:
   // it.
   bool update_hero(const Entity &hero) {
     using std::dynamic_pointer_cast;
-    using std::shared_ptr;
     using std::cout;
     using std::endl;
 
@@ -57,9 +56,14 @@ protected:
 
     try {
       int life = hero.properties.at("DT_DOTA_BaseNPC.m_iHealth")->value_as<IntProperty>();
-      if (life > 0) {
+      // Note that we get multiple entity updates even when it died, but we
+      // only want one output per death. That's why we only output stuff when
+      // the life drops below zero for the first time.
+      if (life > 0 || _previous_lifes[hero.id] <= 0) {
+        _previous_lifes[hero.id] = life;
         return true;
       }
+      _previous_lifes[hero.id] = life;
 
       int cell_x = hero.properties.at("DT_DOTA_BaseNPC.m_cellX")->value_as<IntProperty>();
       int cell_y = hero.properties.at("DT_DOTA_BaseNPC.m_cellY")->value_as<IntProperty>();
@@ -86,6 +90,7 @@ protected:
 private:
   uint32_t _tick;
   HeroPlayerHelper _hph;
+  std::map<uint32_t, int> _previous_lifes;
 };
 
 #endif
