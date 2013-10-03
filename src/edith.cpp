@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <iostream>
 
 #include "demo.pb.h"
 #include "netmessages.pb.h"
@@ -9,7 +8,7 @@
 #include "demo.h"
 #include "entity.h"
 #include "state.h"
-#include "visitors/death_recording.h"
+#include "visitor.h"
 
 #define INSTANCE_BASELINE_TABLE "instancebaseline"
 #define KEY_HISTORY_SIZE 32
@@ -347,17 +346,6 @@ void handle_SVC_UpdateStringTable(const CSVCMsg_UpdateStringTable &update) {
   update_string_table(table, update.num_changed_entries(), update.string_data());
 }
 
-void clear_entities(Visitor& visitor) {
-  for (size_t i = 0; i < MAX_ENTITIES; ++i) {
-    Entity &entity = state->entities[i];
-
-    if (entity.id != -1) {
-      visitor.visit_entity_deleted(entity);
-      entity.id = -1;
-    }
-  }
-}
-
 void dump_DEM_Packet(const CDemoPacket &packet, Visitor& visitor) {
   const char *data = packet.data().c_str();
   size_t offset = 0;
@@ -398,7 +386,7 @@ void dump(const char *file, Visitor& visitor) {
   Demo demo(file);
 
   for (int frame = 0; !demo.eof(); ++frame) {
-    int tick = 0; 
+    int tick = 0;
     size_t size;
     bool compressed;
     size_t uncompressed_size;
@@ -425,16 +413,5 @@ void dump(const char *file, Visitor& visitor) {
       dump_DEM_Packet(packet, visitor);
     }
   }
-}
-
-int main(int argc, char **argv) {
-  if (argc <= 1) {
-    printf("Usage: %s something.dem\n", argv[0]);
-    return 1;
-  }
-
-  DeathRecordingVisitor v;
-  dump(argv[1], v);
-  return 0;
 }
 
