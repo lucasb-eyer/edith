@@ -34,3 +34,6 @@ include_directories("${PROJECT_SOURCE_DIR}/src/")
 # Add all the dumpers
 add_executable(death_recording examples/death_recording.cpp)
 target_link_libraries(death_recording edith)
+
+add_executable(ALL_the_things examples/ALL_the_things.cpp)
+target_link_libraries(ALL_the_things edith)
