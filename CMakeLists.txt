@@ -43,3 +43,6 @@ target_link_libraries(hero_tracking edith)
 
 add_executable(ALL_hero_things examples/ALL_hero_things.cpp)
 target_link_libraries(ALL_hero_things edith)
+
+add_executable(hero_distances examples/hero_distances.cpp)
+target_link_libraries(hero_distances edith)
