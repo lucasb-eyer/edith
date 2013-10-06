@@ -323,7 +323,14 @@ std::ostream& operator<<(std::ostream& os, const Property& prop)
     case SP_Float:
         return os << dynamic_cast<const FloatProperty&>(prop).value;
     case SP_String:
-        return os << dynamic_cast<const StringProperty&>(prop).value;
+    {
+        // Escape quotes in the string, since it's surrounded by quotes.
+        std::string val = dynamic_cast<const StringProperty&>(prop).value;
+        for(size_t start_pos = 0 ; (start_pos = val.find('"', start_pos)) != std::string::npos ; start_pos += 2) {
+            val.replace(start_pos, 1, "\\\"");
+        }
+        return os << '"' << val << '"';
+    }
     case SP_Vector:
         return dynamic_cast<const VectorProperty&>(prop).print(os);
     case SP_VectorXY:
@@ -331,7 +338,7 @@ std::ostream& operator<<(std::ostream& os, const Property& prop)
     case SP_Array:
         return dynamic_cast<const ArrayProperty&>(prop).print(os);
     default:
-        return os << "[unknown type " << prop.type << "]";
+        return os << "\"[unknown type " << prop.type << "]\"";
     }
 }
 
