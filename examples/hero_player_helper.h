@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <sstream>
 
 #include "debug.h"
 #include "entity.h"
@@ -13,18 +14,8 @@
 // the mapping heroid -> playername.
 class HeroPlayerHelper : public Visitor {
 public:
-    HeroPlayerHelper(bool output_mapping = false) : _output_mapping(output_mapping)
-    { }
-
-    virtual ~HeroPlayerHelper() {
-        if(_output_mapping) {
-            std::cout << "{" << std::endl;
-            for(auto& kv : _hero_to_playername) {
-                std::cout << "  " << kv.first << ": \"" << kv.second << "\"," << std::endl;
-            }
-            std::cout << "}" << std::endl;
-        }
-    }
+    HeroPlayerHelper() { }
+    virtual ~HeroPlayerHelper() { }
 
     virtual bool visit_entity_created(const Entity &entity) {
         return update_name_map(entity);
@@ -43,6 +34,16 @@ public:
 
         // Mistake, illusion, or some other weird thing.
         return name != _hero_to_playername.end() ? name->second : "";
+    }
+
+    std::string hero_to_playername_mapping() const {
+        std::ostringstream ss;
+        ss << "{" << std::endl;
+        for(auto& kv : _hero_to_playername) {
+            ss << "  " << kv.first << ": \"" << kv.second << "\"," << std::endl;
+        }
+        ss << "}" << std::endl;
+        return ss.str();
     }
 
 protected:
@@ -75,7 +76,6 @@ protected:
 
 private:
     std::map<uint32_t, std::string> _hero_to_playername;
-    bool _output_mapping;
 };
 
 #endif
