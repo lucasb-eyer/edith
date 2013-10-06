@@ -46,6 +46,11 @@ public:
         return ss.str();
     }
 
+    static std::string heroname(const Entity& hero) {
+        // 16 is length of "CDOTA_Unit_Hero_" prefix.
+        return hero.clazz->name.substr(16);
+    }
+
 protected:
     // This handles the CDOTA_PlayerResource entitiy.
     // We want the 24 send props from the m_iszPlayerNames table named 0000-0023
