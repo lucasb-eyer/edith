@@ -40,3 +40,6 @@ target_link_libraries(ALL_the_things edith)
 
 add_executable(hero_tracking examples/hero_tracking.cpp)
 target_link_libraries(hero_tracking edith)
+
+add_executable(ALL_hero_things examples/ALL_hero_things.cpp)
+target_link_libraries(ALL_hero_things edith)
