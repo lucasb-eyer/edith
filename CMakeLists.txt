@@ -37,3 +37,6 @@ target_link_libraries(death_recording edith)
 
 add_executable(ALL_the_things examples/ALL_the_things.cpp)
 target_link_libraries(ALL_the_things edith)
+
+add_executable(hero_tracking examples/hero_tracking.cpp)
+target_link_libraries(hero_tracking edith)
