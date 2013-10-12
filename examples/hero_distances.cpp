@@ -1,6 +1,6 @@
-// Prints out the heroe's positions at any given time.
-// Difference between this and the other one, is that this one's output is
-// exactly as needed by my python heatmap scripts
+// Prints out the pairwise distances between all heroes at every single tick.
+// It optionally includes the ancients as heroes such that these can be used as
+// known-to-be-fixed reference points.
 
 #include <iostream>
 #include <fstream>
@@ -20,6 +20,7 @@ int ptdist(int x1, int y1, int x2, int y2) {
     return static_cast<int>(sqrtf((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)));
 }
 
+template<bool IncludeAncients>
 class HeroDistancesVisitor : public Visitor {
 public:
     HeroDistancesVisitor()
@@ -30,8 +31,13 @@ public:
             i = make_tuple(false, 0, 0);
         for(int i = 0 ; i < _hero_pos.size()-1 ; ++i)
             for(int j = i+1 ; j < _hero_pos.size() ; ++j)
-                cout << ",d" << i << j;
+                cout << ",d" << i << (IncludeAncients ? "_" : "")<< j;
         cout << endl;
+
+        if(IncludeAncients) {
+            _hero_info[10] = make_tuple(2, "Radiant Ancient");
+            _hero_info[11] = make_tuple(3, "Dire Ancient");
+        }
     }
 
     virtual ~HeroDistancesVisitor()
@@ -76,6 +82,18 @@ public:
 
 protected:
     bool handle_entity(const Entity &hero) {
+        if(IncludeAncients && hero.clazz->name == "CDOTA_BaseNPC_Fort") {
+            int cell_x = hero.properties.at("DT_DOTA_BaseNPC.m_cellX")->value_as<IntProperty>();
+            int cell_y = hero.properties.at("DT_DOTA_BaseNPC.m_cellY")->value_as<IntProperty>();
+            int cell_z = hero.properties.at("DT_DOTA_BaseNPC.m_cellZ")->value_as<IntProperty>();
+            auto origin_prop = dynamic_pointer_cast<VectorXYProperty>(hero.properties.at("DT_DOTA_BaseNPC.m_vecOrigin"));
+            int x = cell_x*128 + origin_prop->values[0];
+            int y = cell_y*128 + origin_prop->values[1];
+            int team = hero.properties.at("DT_BaseEntity.m_iTeamNum")->value_as<IntProperty>();
+            _hero_pos[10 + team-2] = make_tuple(true, x, y);
+            return true;
+        }
+
         if(hero.clazz->name.find("CDOTA_Unit_Hero_") != 0)
             return false;
 
@@ -103,8 +121,8 @@ protected:
 
 private:
     HeroPlayerHelper _hph;
-    array<tuple<bool, int, int>, 10> _hero_pos;    // seen, x, y
-    array<tuple<int, std::string>, 10> _hero_info; // team, name
+    array<tuple<bool, int, int>, IncludeAncients ? 12 : 10> _hero_pos;    // seen, x, y
+    array<tuple<int, std::string>, IncludeAncients ? 12 : 10> _hero_info; // team, name
 };
 
 int main(int argc, char **argv) {
@@ -113,7 +131,7 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    HeroDistancesVisitor visitor;
+    HeroDistancesVisitor<true> visitor;
     dump(argv[1], visitor);
     return 0;
 }
